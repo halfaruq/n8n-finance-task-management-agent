@@ -1,47 +1,44 @@
-# WA Finance Bot Automation
+# 🤖 AI WhatsApp Personal Assistant (n8n + WAHA + Gemini)
 
-<div align="center">
-
-# 🤖 WhatsApp Personal Finance Bot
-**Asisten Keuangan Pribadi Berbasis AI (Gemini) + WhatsApp + Google Sheets**
-
-[![n8n](https://img.shields.io/badge/n8n-Automation-FF6D5A?style=for-the-badge&logo=n8n)](https://n8n.io/)
-[![WAHA](https://img.shields.io/badge/WAHA-WhatsApp_API-25D366?style=for-the-badge&logo=whatsapp)](https://waha.devlike.pro/)
-[![Google Sheets](https://img.shields.io/badge/Google_Sheets-Database-34A853?style=for-the-badge&logo=googlesheets)](https://workspace.google.com/)
-[![Docker](https://img.shields.io/badge/Docker-Container-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
-
----
-
-Bot WhatsApp otomatis yang berfungsi untuk mencatat setiap pengeluaran dan pemasukan harian kamu langsung ke Google Sheets cukup dengan chat biasa. Dilengkapi dengan **Google Gemini AI Agent**, bot ini juga cerdas dan bisa diajak ngobrol santai! 💬
-
-[Fitur Utama](#-fitur-utama) • [Prasyarat](#-prasyarat-sebelum-mulai) • [Cara Install](#-panduan-instalasi-langkah-demi-langkah) • [Format Sheet](#-format-google-sheets)
-
-</div>
+Bot WhatsApp cerdas serba bisa yang ditenagai oleh **AI (Google Gemini)**, **n8n**, dan **WAHA (WhatsApp HTTP API)**. Bot ini berfungsi sebagai asisten pribadi yang dapat mencatat pengeluaran/pemasukan keuangan dan mengelola tugas kuliah/kerja secara otomatis ke **Google Sheets**, lengkap dengan fitur notifikasi pengingat otomatis (H-1 Deadline).
 
 ---
 
 ## ✨ Fitur Utama
 
-- 📝 **Pencatatan Otomatis dari Chat:** Ketik pesan santai seperti `"nasi goreng 15rb"`, AI akan otomatis mengekstraksi jenis transaksi, kategori, dan nominalnya.
-- 📊 **Terintegrasi Google Sheets:** Semua data transaksi tersimpan rapi dan aman di spreadsheet milikmu sendiri.
-- 💰 **Cek Saldo Real-Time:** Cukup tanyakan `"saldoku berapa?"` di WA, bot akan membaca data riil dari baris paling bawah spreadsheet.
-- 🧠 **Smart AI Agent:** Bot tidak hanya sekadar bot pencatat, tapi juga bisa diajak berdiskusi atau diajak ngobrol topik umum secara alami.
+- **💬 Natural Language Processing (AI Agent):** Tidak perlu menghafal format kaku. Cukup chat dengan bahasa santai (contoh: *"Bro, catat pengeluaran 15rb buat makan"* atau *"/tugas Makalah SPIDI deadline besok jam 23:59"*), AI akan mengekstrak datanya secara otomatis.
+- **💰 Finance Tracker (`/finance`):** Mencatat arus kas (pemasukan & pengeluaran) dan mengecek sisa saldo langsung dari WhatsApp. Data tersimpan rapi di Google Sheets.
+- **📋 Task Management (`/tugas`):** 
+  - Mencatat daftar tugas beserta tanggal deadline.
+  - Mengecek tugas apa saja yang belum selesai.
+  - Menandai tugas yang sudah selesai (*Mark as Done*).
+- **⏰ H-1 Auto-Reminder:** Bot akan otomatis mengirimkan pesan pengingat ke WhatsApp kamu jika ada tugas yang deadlinenya tersisa $\le$ 24 jam (menggunakan *Schedule Trigger/Cron*).
 
 ---
 
-## 🧰 Prasyarat Sebelum Mulai
+## 🛠️ Tech Stack
 
-Pastikan di komputer / VPS kamu sudah terinstall software berikut:
-1. **Docker & Docker Compose**
-2. **Akun Google** (untuk Google Sheets & Google Gemini API)
-3. **Nomor WhatsApp** (yang akan dijadikan bot)
+- **[n8n](https://n8n.io/):** Workflow Automation Tool (Visual Node-Based).
+- **[WAHA](https://waha.devlike.pro/):** WhatsApp HTTP API (berbasis WhatsApp Web.js) untuk mengirim/menerima pesan.
+- **[Google Sheets API](https://developers.google.com/sheets/api):** Sebagai *database* pencatatan tugas dan keuangan.
+- **[Google Gemini API](https://aistudio.google.com/):** Otak AI Agent (menggunakan model `gemini-1.5-flash` / `gemini-2.5-flash`).
+- **[Docker](https://www.docker.com/):** (Opsional/Sangat Disarankan) Untuk menjalankan n8n dan WAHA secara lokal/server.
 
 ---
 
-## 🚀 Panduan Instalasi (Langkah demi Langkah)
+## 🚀 Prasyarat Instalasi
 
-### 1. Clone Repositori Ini
-Buka terminal kamu dan jalankan perintah:
+Sebelum memulai, pastikan kamu sudah memiliki:
+1. Docker & Docker Compose terinstal di mesin/PC kamu.
+2. Akun Google Cloud Console untuk mendapatkan kredensial **Google Sheets API** (Service Account/OAuth).
+3. API Key dari **Google AI Studio (Gemini)**.
+4. Akun WhatsApp aktif yang akan digunakan sebagai nomor bot.
+
+---
+
+## ⚙️ Panduan Instalasi & Penggunaan
+
+### 1. Clone Repositori
 ```bash
 git clone [https://github.com/halfaruq/n8n-finance-agent.git](https://github.com/halfaruq/n8n-finance-agent.git)
 cd n8n-finance-agent

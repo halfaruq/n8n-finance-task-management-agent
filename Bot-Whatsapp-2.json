@@ -1,0 +1,446 @@
+{
+  "name": "Bot-Whatsapp",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.payload.body }}",
+        "options": {
+          "systemMessage": "Kamu adalah AI Assistant serba bisa sekaligus asisten pribadi yang santai, ramah, dan cerdas. Kamu memiliki akses ke dua tool Google Sheets: satu untuk mencatat & mengecek keuangan (tab 'Sheet1'), dan satu lagi untuk mencatat tugas & deadline (tab 'Tugas').\n\n==================================================\nATURAN PREFIKS & EKSEKUSI TOOL (WAJIB DITAATI):\n==================================================\n\n1. JIKA CHAT DIAWALI DENGAN PREFIKS '/finance':\n   - Pengguna sedang mengurus transaksi keuangan.\n   - JIKA ISI PESAN CEK SALDO (Contoh: \"/finance cek saldo\"):\n     * Panggil tool 'Get row(s) in sheet' pada tab 'Sheet1'. Ambil nilai Saldo pada baris paling bawah. DILARANG MENEBAK ANGKA!\n   - JIKA ISI PESAN TRANSAKSI (Contoh: \"/finance makan 15rb\", \"/finance pemasukan 500rb\"):\n     * Langkah 1: Panggil tool 'Get row(s) in sheet' (tab 'Sheet1') untuk membaca saldo terakhir.\n     * Langkah 2: Hitung saldo baru (Pengeluaran = Saldo - Nominal | Pemasukan = Saldo + Nominal).\n     * Langkah 3: WAJIB panggil tool 'Append row in sheet' ke tab 'Sheet1'.\n     * DILARANG MERESPON \"SUDAH DICATAT\" JIKA TOOL APPEND BELUM BERHASIL DIEKSEKUSI.\n\n2. JIKA CHAT DIAWALI DENGAN PREFIKS '/tugas':\n   - Pengguna sedang menginput pengingat tugas. (Contoh: \"/tugas makalah SPIDI deadline 31 okt jam 23:59\")\n   - Langkah 1: Ekstrak Nama Tugas dan Tanggal Deadline.\n     * Format Tanggal Deadline WAJIB: YYYY-MM-DD HH:mm:ss.\n     * Jika tahun tidak disebutkan, gunakan tahun saat ini (2026).\n     * Jika jam tidak disebutkan, gunakan default 23:59:00.\n   - Langkah 2: WAJIB panggil tool 'Append row in sheet' ke tab 'Tugas' dengan parameter:\n     * Nama Tugas: Detail tugas\n     * Tanggal Deadline: Format YYYY-MM-DD HH:mm:ss\n     * Status: \"Belum\"\n     * Notif H-1: \"Belum\"\n   - DILARANG MERESPON \"SUDAH DICATAT\" JIKA TOOL APPEND BELUM BERHASIL DIEKSEKUSI.\n\n3. JIKA CHAT TANPA PREFIKS (CHAT BIASA / OBROLAN UMUM):\n   - Jangan panggil tool Google Sheets sama sekali.\n   - Jawab langsung pertanyaan pengguna secara santai, lengkap, ramah, dan cerdas.\n\n==================================================\nGAYA BAHASA & FORMAT (WHATSAPP):\n==================================================\n- Gunakan bahasa Indonesia santai dan akrab.\n- Gunakan emoji secukupnya agar menarik.\n- Gunakan cetak tebal (*) untuk poin-poin penting.\n- DILARANG menggunakan tabel markdown (| --- |).\n\n==================================================\nKATEGORI B: PENCATATAN & MANAJEMEN TUGAS (/tugas)\n==================================================\n\n1. JIKA USER CHECK TUGAS / CEK TUGAS BELUM SELESAI (Contoh: \"/tugas cek\", \"/tugas list\", \"ada tugas apa aja yang belum?\"):\n   - Langkah 1: Panggil tool 'Get row(s) in sheet' pada tab 'Tugas'.\n   - Langkah 2: Filter baris data yang memiliki kolom Status = \"Belum\".\n   - Langkah 3: Jawab dengan daftar tugas yang belum selesai secara rapi (sebutkan Nama Tugas dan Tanggal Deadline).\n   - JIKA SEMUA TUGAS SUDAH SELESAI: Balas \"Mantap Bos! Semua tugas kamu udah kelar, gak ada beban lagi! 🎉\"\n\n2. JIKA USER TANDAI TUGAS SELESAI (Contoh: \"/tugas selesai makalah SPIDI\", \"/tugas kelar ml\"):\n   - Langkah 1: Panggil tool 'Update row in sheet' pada tab 'Tugas'.\n   - Langkah 2: Cari Nama Tugas yang cocok, lalu ubah kolom Status menjadi \"Sudah\".\n   - Langkah 3: Balas konfirmasi \"Sip! Tugas *[Nama Tugas]* udah ditandai SELESAI! Mantap! 🔥\"\n\n3. JIKA USER INPUT TUGAS BARU (Contoh: \"/tugas makalah SPIDI deadline 31 okt jam 23:59\"):\n   - Panggil tool 'Append row in sheet' ke tab 'Tugas' seperti biasa (Status: \"Belum\", Notif H-1: \"Belum\").\n\nATURAN FORMAT BALASAN:\n- Gunakan karakter newline/enter asli untuk berpindah baris. DILARANG keras menampilkan karakter teks mentah '\\n' atau '\\\\n' dalam balasan.\n\n==================================================\nATURAN EKSPLISIT PEMANGGILAN TOOL TUGAS (/tugas)\n==================================================\n\nJIKA USER INPUT TUGAS BARU (Contoh: \"/tugas Makalah SPIDI deadline 31 okt jam 23:59\"):\n- KETENTUAN UTAMA: DILARANG HANYA MENGINGAT DI MEMORI! \n- KAMU WAJIB MEMANGGIL TOOL 'Append row in sheet in Google Sheets' (tab 'tugas') UNTUK MENYIMPAN DATA TUGAS!\n- DILARANG MERESPON \"Sudah dicatat\" ATAU \"Siap\" SEBELUM TOOL APPEND BERHASIL DIEKSEKUSI!"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c1e5cd50-49dc-436a-ba10-648301a7209d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@devlikeapro/n8n-nodes-waha.wahaTrigger",
+      "typeVersion": 202502,
+      "position": [
+        -96,
+        -16
+      ],
+      "id": "558d29c2-27c7-43b5-b97c-e74fe342da79",
+      "name": "WAHA Trigger",
+      "webhookId": "1df9a06e-e135-42fb-bba4-328e7a660d7e"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        176
+      ],
+      "id": "fb82b61e-9214-49ad-9646-11efe75c326f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "C2h3tEMjuIVjvftq",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "Chatting",
+        "operation": "Send Text",
+        "session": "=bot-1",
+        "chatId": "={{ $('WAHA Trigger').first().json.payload.from }}",
+        "text": "={{ $json.output }}",
+        "requestOptions": {}
+      },
+      "type": "@devlikeapro/n8n-nodes-waha.WAHA",
+      "typeVersion": 202502,
+      "position": [
+        560,
+        0
+      ],
+      "id": "037cb3c8-8cf6-4c74-a2c4-16212499fc86",
+      "name": "Send a text message",
+      "credentials": {
+        "wahaApi": {
+          "id": "LtW9dESFdFBtthy1",
+          "name": "WAHA account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI",
+          "mode": "list",
+          "cachedResultName": "bot-wa-fix",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Jenis": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Jenis', `Isi dengan \"Pemasukan\" atau \"Pengeluaran\"`, 'string') }}",
+            "Keterangan": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Keterangan', `Detail atau sumber transaksi`, 'string') }}",
+            "Nominal": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Nominal', ``, 'string') }}",
+            "Saldo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Saldo', `Hasil perhitungan saldo akhir`, 'string') }}",
+            "Tanggal ": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tanggal_', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Tanggal ",
+              "displayName": "Tanggal ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Jenis",
+              "displayName": "Jenis",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Keterangan",
+              "displayName": "Keterangan",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nominal",
+              "displayName": "Nominal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Saldo",
+              "displayName": "Saldo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        640,
+        176
+      ],
+      "id": "39d4bd7c-d026-46da-9342-9fbcf5c86344",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gmNf3GVVIX7qmCXy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI",
+          "mode": "list",
+          "cachedResultName": "bot-wa-fix",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        400,
+        384
+      ],
+      "id": "1ca163b1-5b0a-47ee-b8ca-106e643b7a7d",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gmNf3GVVIX7qmCXy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI",
+          "mode": "list",
+          "cachedResultName": "bot-wa-fix",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1054994675,
+          "mode": "list",
+          "cachedResultName": "tugas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit#gid=1054994675"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nama Tugas": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Nama_Tugas', ``, 'string') }}",
+            "Tanggal Deadline": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Tanggal_Deadline', ``, 'string') }}",
+            "Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Status', ``, 'string') }}",
+            "Notif H-1": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Notif_H-1', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Nama Tugas",
+              "displayName": "Nama Tugas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tanggal Deadline",
+              "displayName": "Tanggal Deadline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notif H-1",
+              "displayName": "Notif H-1",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        384
+      ],
+      "id": "45cfc7c3-eacc-422c-898d-64b705c84f8d",
+      "name": "Append row in sheet in Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gmNf3GVVIX7qmCXy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI",
+          "mode": "list",
+          "cachedResultName": "bot-wa-fix",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1054994675,
+          "mode": "list",
+          "cachedResultName": "tugas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Ruxn8dgGxm4TpwCOTp8njD65WByDwf129NpjIOS0GtI/edit#gid=1054994675"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        448
+      ],
+      "id": "bf510f70-b554-46e5-9ffc-fadc16134716",
+      "name": "Get row(s) in sheet in Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "gmNf3GVVIX7qmCXy",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "session_wa"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        288,
+        256
+      ],
+      "id": "953d80d1-5a8b-4426-bc13-24a093f5d6c3",
+      "name": "Simple Memory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WAHA Trigger": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7f42954b-b82a-41d5-9f94-d70884eb477e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "221f50ecd218d6bea93a01470d0b469c4e86151cc7a967a6d82e20b61e770288"
+  },
+  "nodeGroups": [],
+  "id": "hWiJ39wKcA6sWYNT",
+  "tags": []
+}
